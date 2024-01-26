@@ -10,6 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthServiceService } from '../../services/Auth/auth-service.service';
 
 @Component({
   selector: 'app-auth',
@@ -28,6 +29,8 @@ import { MatButtonModule } from '@angular/material/button';
 export class AuthComponent {
   isRegister = true;
 
+  constructor(public authService: AuthServiceService) {}
+
   registrationForm = new FormGroup({
     fullName: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -44,10 +47,24 @@ export class AuthComponent {
 
   handleRegister() {
     console.log('register', this.registrationForm.value);
+    this.authService.register(this.registrationForm.value).subscribe({
+      next: (response) => {
+        localStorage.setItem('jwt', response.jwt);
+        this.authService.getUserProfile().subscribe();
+        console.log('Signup successful', response);
+      },
+    });
   }
 
   handleLogin() {
     console.log('login', this.loginForm.value);
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (response) => {
+        localStorage.setItem('jwt', response.jwt);
+        this.authService.getUserProfile().subscribe();
+        console.log('Login successful', response);
+      },
+    });
   }
 
   togglePanel() {
